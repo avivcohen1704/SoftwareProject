@@ -16,6 +16,8 @@ void addCords(struct cord *curr_cord1, struct cord *min_cord);
 void create_Array(int array[], int len);
 struct cord* createEmptyCord(int size_of_vector);
 struct vector* copyOf(struct vector *old_centroid);
+/*void freeSpaceCord(struct cord *Cord);
+void freeSpaceVec(struct vector *vec);*/
 
 
 
@@ -38,11 +40,17 @@ int main(int argc, char **argv)
     char c;
 
     int k;
-    int iter;
+    int iter = 0;
     int num_of_dp;
 
+
     k = atoi(argv[1]);
-    iter = atoi(argv[2]);
+    if(sizeof(argv)!=3){
+        iter = 200;
+    }
+    else{
+        iter = atoi(argv[2]);
+    }
 
 
 
@@ -191,7 +199,12 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
         }
         convergenceCNT = cnt;
         iterCNT +=1;
+        /*
+        freeSpaceVec(head_vec2);
+        free(head_vec2);*/
+
         curr_vec2 = copyOf(new_head_vec);
+        head_vec2 = curr_vec2;
 
 
 
@@ -213,6 +226,10 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
         new_curr_vec = new_curr_vec->next;
         new_curr_cord = new_curr_vec->cords;
     }
+    /*
+    freeSpaceVec(head_vec2);
+    freeSpaceVec(dp_head);*/
+
 }
 
 
@@ -221,7 +238,7 @@ int inputValidation(int k, int iter, int num_of_dp){
         printf("Invalid number of clusters!");
         return 1;
     }
-    if((iter < 1) || (iter >= 1000) || (iter % 1 != 0)) {
+    if((iter <= 1) || (iter >= 1000) || (iter % 1 != 0)) {
         printf("Invalid maximum iteration!");
         return 1;
     }
@@ -240,7 +257,7 @@ float euclideanDistance(struct cord *x1, struct cord *x2){
         x1 = x1->next;
         x2 = x2->next;
     }
-    d = pow(d,0.5);
+    d = powf(d,0.5);
     return d;
 }
 
@@ -258,6 +275,7 @@ struct vector *getCentroids(struct vector *dp_head, int k){
         centroids_curr_vec->cords = createVector(curr_dp->cords);
         if(i != (k-1)){
             centroids_curr_vec->next = malloc(sizeof(struct vector));
+            /*centroids_curr_vec->next->next=NULL;*/
         }
         centroids_curr_vec = centroids_curr_vec->next;
         if(i != (k-1)){
@@ -389,6 +407,7 @@ struct cord* createEmptyCord(int size_of_vector){
     }
     return head_cord;
 }
+
 struct vector* copyOf(struct vector *old_centroid){
     struct vector *new_centroids_head, *curr_vec1, *curr_vec2;
     struct cord *curr_cord1, *curr_cord2;
@@ -399,9 +418,11 @@ struct vector* copyOf(struct vector *old_centroid){
 
     while(curr_vec2 != NULL){
         curr_vec1->cords = createVector(curr_vec2->cords);
-        curr_vec1->next = malloc(sizeof(struct vector));
-        curr_vec1 = curr_vec1->next;
-        curr_vec1->next = NULL;
+        if(curr_vec2->next != NULL){
+            curr_vec1->next = malloc(sizeof(struct vector));
+            curr_vec1 = curr_vec1->next;
+            curr_vec1->next = NULL;
+        }
         if(curr_vec2->next == NULL){
             break;
         }
@@ -409,3 +430,35 @@ struct vector* copyOf(struct vector *old_centroid){
     }
     return new_centroids_head;
 }
+/*
+void freeSpaceVec(struct vector *vec){
+    struct vector *p;
+    while(vec != NULL){
+        printf("error 1");
+        p = vec;
+        if(vec->next == NULL){
+            freeSpaceCord(p->cords);
+            free(p);
+            return;
+        }
+        vec = vec->next;
+        freeSpaceCord(p->cords);
+        free(p);
+    }
+}
+
+void freeSpaceCord(struct cord *Cord){
+    struct cord *p;
+    while (Cord != NULL)
+    {
+        printf("error 2");
+        p = Cord;
+        if(Cord->next == NULL){
+            free(p);
+            return;
+        }
+        Cord = Cord->next;
+        free(p);
+    }
+
+}*/
