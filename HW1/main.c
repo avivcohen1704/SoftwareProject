@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <math.h>
+# include <string.h>
 
 float e = 0.001;
 int inputValidation(int k, int iter, int num_of_dp);
@@ -16,8 +17,9 @@ void addCords(struct cord *curr_cord1, struct cord *min_cord);
 void create_Array(int array[], int len);
 struct cord* createEmptyCord(int size_of_vector);
 struct vector* copyOf(struct vector *old_centroid);
-/*void freeSpaceCord(struct cord *Cord);
-void freeSpaceVec(struct vector *vec);*/
+void freeSpaceCord(struct cord *Cord);
+void freeSpaceVec(struct vector *vec);
+int isalldigits(const char *s);
 
 
 
@@ -44,15 +46,25 @@ int main(int argc, char **argv)
     int num_of_dp;
 
 
+
+    if(isalldigits(argv[1]) == 0){
+        printf("Invalid number of centroids!");
+        return 0;
+    }
+
     k = atoi(argv[1]);
-    if(sizeof(argv)!=3){
+
+    if((argv[2]) == NULL ){
+        printf("err");
         iter = 200;
     }
     else{
+        if(isalldigits(argv[2]) == 0){
+            printf("Invalid maximun iteration!");
+            return 0;
+        }
         iter = atoi(argv[2]);
     }
-
-
 
 
     head_cord = malloc(sizeof(struct cord));
@@ -97,12 +109,13 @@ int main(int argc, char **argv)
     }
 
     struct vector *centroids_head_vec;
-    //centroids_head_vec = malloc(sizeof(struct vector)); // is not supposed to be here
     centroids_head_vec = getCentroids(dp_head, k);
+
+
 
     kmeans(dp_head, centroids_head_vec, k, iter, num_of_dp);
 
-
+    int a =4;
     return 0;
 }
 
@@ -111,10 +124,12 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
     int cord_length;
     cord_length = getCordLength(dp_head);
 
-    int convergence_array[num_of_dp];// the array of the convergence
+    // the array of the convergence
+    int *convergence_array = malloc(num_of_dp * (sizeof(int)));
     create_Array(convergence_array, num_of_dp);
 
-    int num_of_dp_in_cluster[k];  // the array of the division
+    // the array of the division
+    int *num_of_dp_in_cluster = malloc(k * (sizeof(int)));
     create_Array(num_of_dp_in_cluster, k);
 
     int convergenceCNT = 0; // for first while loop
@@ -199,10 +214,8 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
         }
         convergenceCNT = cnt;
         iterCNT +=1;
-        /*
-        freeSpaceVec(head_vec2);
-        free(head_vec2);*/
 
+        freeSpaceVec(head_vec2);
         curr_vec2 = copyOf(new_head_vec);
         head_vec2 = curr_vec2;
 
@@ -226,9 +239,11 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
         new_curr_vec = new_curr_vec->next;
         new_curr_cord = new_curr_vec->cords;
     }
-    /*
+
     freeSpaceVec(head_vec2);
-    freeSpaceVec(dp_head);*/
+    freeSpaceVec(dp_head);
+    free(convergence_array);
+    free(num_of_dp_in_cluster);
 
 }
 
@@ -313,15 +328,17 @@ struct vector* createEmptyCentroids(int k, int size_of_vector){
 struct cord* createVector(struct cord *x){
     struct cord *res;
     res = malloc(sizeof(struct cord));
-    struct cord *curr;
-    curr = res;
-    while(x->next != NULL){
-        curr->value = x->value;
-        curr->next = malloc(sizeof(struct cord));
-        curr = curr->next;
-        x = x->next;
+    struct cord *curr1, *curr2;
+    curr1 = res;
+    curr2 = x;
+    while(curr2->next != NULL){
+        curr1->value = curr2->value;
+        curr1->next = malloc(sizeof(struct cord));
+        curr1 = curr1->next;
+        curr2 = curr2->next;
     }
-    curr->value = x->value;
+    curr1->value = curr2->value;
+    curr1->next = NULL;
     return res;
 }
 
@@ -413,6 +430,8 @@ struct vector* copyOf(struct vector *old_centroid){
     struct cord *curr_cord1, *curr_cord2;
 
     new_centroids_head = malloc(sizeof(struct vector));
+    new_centroids_head->next = NULL;
+    new_centroids_head->cords = NULL;
     curr_vec1 = new_centroids_head;
     curr_vec2 = old_centroid;
 
@@ -430,35 +449,31 @@ struct vector* copyOf(struct vector *old_centroid){
     }
     return new_centroids_head;
 }
-/*
-void freeSpaceVec(struct vector *vec){
-    struct vector *p;
-    while(vec != NULL){
-        printf("error 1");
-        p = vec;
-        if(vec->next == NULL){
-            freeSpaceCord(p->cords);
-            free(p);
-            return;
-        }
-        vec = vec->next;
-        freeSpaceCord(p->cords);
-        free(p);
+
+void freeSpaceVec(struct vector *head){
+    if(head == NULL){
+        return;
     }
+    if(head->cords != NULL){
+        freeSpaceCord(head->cords);
+    }
+    freeSpaceVec(head->next);
+    free(head);
+    return;
 }
 
-void freeSpaceCord(struct cord *Cord){
-    struct cord *p;
-    while (Cord != NULL)
-    {
-        printf("error 2");
-        p = Cord;
-        if(Cord->next == NULL){
-            free(p);
-            return;
-        }
-        Cord = Cord->next;
-        free(p);
+void freeSpaceCord(struct cord *head){
+    if(head == NULL){
+        return;
     }
+    freeSpaceCord(head->next);
+    free(head);
+    return;
+}
 
-}*/
+int isalldigits(const char *s) {
+    for (; *s; ++s) {
+        if (!isdigit(*s)) return 0;
+    }
+    return 1;
+}
