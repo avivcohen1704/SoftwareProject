@@ -5,9 +5,12 @@ convergenceCnt = 0
 iterCnt = 0
 
 def main():
-    K, iter, file_name = split_program_args()
+    K, iter, file_name,s = split_program_args()
+    if s == 0:
+        print("An Error Has Occurred")
+        return
     if(not K.isdigit()):
-        print("Invalid number of Centroids!")
+        print("Invalid number of clusters!")
         return
     if(not iter.isdigit()):
         print("Invalid maximun itertation!")
@@ -17,10 +20,12 @@ def main():
 
 def split_program_args():
     argv_len = len(sys.argv)
+    if (argv_len > 4) or (argv_len < 3):
+        return 0,0,0,0
     K = sys.argv[1]
     iter = sys.argv[2] if argv_len == 4 else "200"
     file_name = sys.argv[argv_len - 1]
-    return K, iter, file_name
+    return K, iter, file_name, argv_len
 
 def kmeans(K, iter=200, inputData=None):
     convergenceCnt = 0
@@ -33,15 +38,17 @@ def kmeans(K, iter=200, inputData=None):
     '''gets all the data points from the file'''
     X = getDataPoints(inputData)
 
-    '''initialize centroids'''
-    centroids = getCentroids(X,K)
-    clusters = [[] for x in range(K)]
-
     ''' check the input'''
     N = len(X)
     if inputValidation(K,iter,N):
         return
 
+
+    '''initialize centroids'''
+    centroids = getCentroids(X,K)
+    clusters = [[] for x in range(K)]
+
+    
     '''the repeat loop'''
     while iterCnt < iter or convergenceCnt < K:
 
@@ -118,7 +125,7 @@ def inputValidation(K,iter,N):
     if (K<=1) or (K>=N) or (K%1 != 0):
         print("Invalud number of clusters!")
         return True
-    if(iter<1) or (iter>=1000) or (iter%1 !=0):
+    if(iter<=1) or (iter>=1000) or (iter%1 !=0):
         print("Invalid maximum interation!")
         return True
     return False
