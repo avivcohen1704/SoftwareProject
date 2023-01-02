@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 np.random.seed(0)
 
-'''def main():
+def main():
     K, iter, eps, file_name_1, file_name_2, s = split_program_args()
     if (s == 0):
         print("An Error Has Occured")
@@ -16,8 +16,7 @@ np.random.seed(0)
         return
     if(eps<=0):
         print("An Error Has Occured")
-        return'''
-
+        return
 
 
 def create_dp(file_name_1, file_name_2):
@@ -29,7 +28,7 @@ def create_dp(file_name_1, file_name_2):
     dp = pandas_dp.to_numpy().tolist()
     return dp
 
-'''def split_program_args():
+def split_program_args():
     if(len(sys.argv)>6 or len(sys.argv)<5):
         return 0,0,0,0,0,0
     argv_len = len(sys.argv)
@@ -38,7 +37,7 @@ def create_dp(file_name_1, file_name_2):
     eps = sys.argv[3]
     file_name_1 = sys.argv[4]
     file_name_2 = sys.argv[5]
-    return K, iter, eps, file_name_1, file_name_2, argv_len'''
+    return K, iter, eps, file_name_1, file_name_2, argv_len
 
 def inputValidation(K,iter,N):
     if (K<=1) or (K>=N) or (K%1 != 0):
@@ -62,23 +61,21 @@ def output_print(centroids, list_of_indx):
         print(line)
 
 def first_choose (dp):
-    a = np.random.randint(low=0, high=len(dp)) - 1
-
-    return dp[a]
+    a = np.random.choice(range(1,len(dp)))
+    return dp[a-1]
 
 def calc_probability (dp,centroids):
     cnt = 0
     dist=[0 for i in range(len(dp))]
-    min_dist= np.inf
     for a in dp:
         min_dist = np.inf
         for b in centroids:
             curr_dist = euclideanDistance(a,b)
             if curr_dist < min_dist:
                 min_dist = curr_dist
-        dist[cnt] += min_dist
+        dist[cnt] = min_dist
         cnt +=1
-    total = np.sum(dist)
+    total = sum(dist)
     probability_arr = [dist[i]/total for i in range(len(dist))]
     return probability_arr
 
@@ -88,14 +85,12 @@ def create_centroids(dp, K):
     for i in range(K-1):
         prob_arr = calc_probability(dp, centroids)
         cen = choose_centroid(dp,centroids,prob_arr)
-        centroids.append(dp[cen-1])
+        centroids.append(dp[cen])
     return centroids
 
 def choose_centroid(dp,centroids,prob_arr):
-    print(len(prob_arr))
     indx = [i for i in range(len(prob_arr))]
-    cen = np.random.choice(indx, p = prob_arr)-1
-    print(cen)
+    cen = np.random.choice(indx, p = prob_arr)
     return cen
 
 def euclideanDistance(x1,x2):
@@ -105,8 +100,8 @@ def euclideanDistance(x1,x2):
     d = d**0.5
     return d
 
-file_name_1 = "C:/Users/avivc\SoftwareProject\WH2/tests\input_1_db_1.txt"
-file_name_2 = "C:/Users/avivc\SoftwareProject\WH2/tests\input_1_db_2.txt"
+file_name_1 = "C:/Users/omri7/Desktop/HW2/tests/input_1_db_1.txt"
+file_name_2 = "C:/Users/omri7/Desktop/HW2/tests/input_1_db_2.txt"
 K = 3
 iter = 333
 eps = 0.001
@@ -115,4 +110,3 @@ dp = create_dp(file_name_1, file_name_2)
 print("the input is wrong :", inputValidation(K,iter,len(dp)))
 centroids = create_centroids(dp, K)
 print(centroids)
-
