@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import sys
+import kmeans_capi
 np.random.seed(0)
 
 def main():
@@ -14,9 +15,28 @@ def main():
     if (not iter.isdigit()):
         print("Invalid maximun itertation!")
         return
-    if(eps<=0):
+    if (eps<=0):
         print("An Error Has Occured")
         return
+    
+    K = int(K)
+    iter = int(iter)
+
+    dp = create_dp(file_name_1, file_name_2)
+
+    if inputValidation(K,iter,len(dp)) == True:
+        return
+
+    centroids, list_of_indx = create_centroids(dp, K)
+    
+    last_centroids = kmeans_capi.kmeans_wrap(K, iter, eps, dp, centroids, len(dp[0]), len(dp))
+    
+    output_print(last_centroids, list_of_indx)
+
+    return
+
+
+
 
 
 def create_dp(file_name_1, file_name_2):
@@ -32,11 +52,21 @@ def split_program_args():
     if(len(sys.argv)>6 or len(sys.argv)<5):
         return 0,0,0,0,0,0
     argv_len = len(sys.argv)
-    K = sys.argv[1]
-    iter = sys.argv[2] if argv_len == 6 else "300"
-    eps = sys.argv[3]
-    file_name_1 = sys.argv[4]
-    file_name_2 = sys.argv[5]
+    if argv_len == 5:
+        K = sys.argv[1]
+        iter = "300"
+        eps = sys.argv[2]
+        file_name_1 = sys.argv[3]
+        file_name_2 = sys.argv[4]
+    else:
+        K = sys.argv[1]
+        iter = sys.argv[2] if argv_len == 6 else "300"
+        eps = sys.argv[3]
+        file_name_1 = sys.argv[4]
+        file_name_2 = sys.argv[5]
+
+    eps = float(eps)
+
     return K, iter, eps, file_name_1, file_name_2, argv_len
 
 def inputValidation(K,iter,N):
@@ -49,8 +79,14 @@ def inputValidation(K,iter,N):
     return False
 
 def output_print(centroids, list_of_indx):
+    indx_str = ""
     for i in range(len(list_of_indx)):
-        print(list_of_indx[i], ", ")
+        indx_str += list_of_indx[i]
+        if i==len(list_of_indx)-1:
+            break
+        indx_str += ","
+    print(indx_str)
+
     for x in centroids:
         line = ''
         for i in range(len(x[0])):
@@ -60,8 +96,9 @@ def output_print(centroids, list_of_indx):
             line += x[0][i].__str__()
         print(line)
 
-def first_choose (dp):
+def first_choose (dp, list_of_indx):
     a = np.random.choice(range(1,len(dp)))
+    list_of_indx.append(a-1)
     return dp[a-1]
 
 def calc_probability (dp,centroids):
@@ -81,12 +118,14 @@ def calc_probability (dp,centroids):
 
 def create_centroids(dp, K):
     centroids = []
-    centroids.append(first_choose(dp))
+    list_of_indx = []
+    centroids.append(first_choose(dp, list_of_indx))
     for i in range(K-1):
         prob_arr = calc_probability(dp, centroids)
         cen = choose_centroid(dp,centroids,prob_arr)
         centroids.append(dp[cen])
-    return centroids
+        list_of_indx.append(cen)
+    return centroids, list_of_indx
 
 def choose_centroid(dp,centroids,prob_arr):
     indx = [i for i in range(len(prob_arr))]
@@ -100,13 +139,5 @@ def euclideanDistance(x1,x2):
     d = d**0.5
     return d
 
-file_name_1 = "C:/Users/omri7/Desktop/HW2/tests/input_1_db_1.txt"
-file_name_2 = "C:/Users/omri7/Desktop/HW2/tests/input_1_db_2.txt"
-K = 3
-iter = 333
-eps = 0.001
-
-dp = create_dp(file_name_1, file_name_2)
-print("the input is wrong :", inputValidation(K,iter,len(dp)))
-centroids = create_centroids(dp, K)
-print(centroids)
+if __name__ == "__main__":
+    main()
