@@ -23,17 +23,13 @@ void freeSpaceVec(struct vector *vec);
 int isNum (char *s);
 int isDigit(char c);
 struct cords* create_cord_from_arr(int size_of_vec, double cord[size_of_vec]);
-struct vector* arr_to_ll(int num_points, int size_of_vec, double point_arr[num_points][size_of_vec]);
+struct vector* arr_to_ll(int num_points, int size_of_vec, double point_arr[num_points][size_of_vec],int bool);
 int kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double dp_arr[num_of_dp][size_of_vec], double *centroids_arr[k][size_of_vec]);
 PyObject* kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k, int iter, int num_of_dp,double e, int size_of_vec);
 PyObject* ll_to_arr(struct vector *centroids, int k, int size_of_vec);
 PyObject* create_vec_from_arr(struct cord *cord,  int size_of_vec);
 
 
-/*typedef struct _object {
-    Py_ssize_t ob_refcnt;
-    struct _typeobject *ob_type;
-} PyObject;*/
 struct cord
 {
     double value;
@@ -50,13 +46,9 @@ int kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double d
 {
     struct vector *dp_head;
     struct vector *centroids_head_vec;
-    /*int k;
-    int iter;
-    int num_of_dp;
-    double e;*/
 
-    dp_head = arr_to_ll(num_of_dp, size_of_vec, dp_arr);
-    centroids_head_vec = arr_to_ll(k, size_of_vec, centroids_arr);
+    dp_head = arr_to_ll(num_of_dp, size_of_vec, dp_arr, 0);
+    centroids_head_vec = arr_to_ll(k, size_of_vec, centroids_arr, 1);
 
     return kmeans(dp_head, centroids_head_vec, k, iter, num_of_dp, e, size_of_vec);
     }
@@ -396,9 +388,13 @@ PyObject* ll_to_arr(struct vector *centroids, int k, int size_of_vec){
     struct vector *curr_vec;
     PyObject* res = PyList_New(k);
     PyObject* cord = PyList_New(size_of_vec);
+    curr_vec = centroids;
     for(i=0; i<k; i++){
         cord = create_vec_from_arr(curr_vec->cords, size_of_vec);
         PyList_SetItem(res, i, cord);
+        if(i == k-1){
+            break;
+        }
         curr_vec = curr_vec->next;
     }
     return res;
@@ -413,7 +409,7 @@ PyObject* create_vec_from_arr(struct cord *cord,  int size_of_vec){
     for(i=0; i<size_of_vec; i++){
         python_double = Py_BuildValue("d",curr_cord->value);
         PyList_SetItem(res, i, python_double);
-        if(i=size_of_vec){
+        if(i == size_of_vec-1){
             break;
         }
         curr_cord = curr_cord->next;
@@ -421,14 +417,14 @@ PyObject* create_vec_from_arr(struct cord *cord,  int size_of_vec){
     return res;
 }
 
-struct vector* arr_to_ll(int num_points, int size_of_vec, double point_arr[num_points][size_of_vec]){
+struct vector* arr_to_ll(int num_points, int size_of_vec, double point_arr[num_points][size_of_vec],int bool){
     struct vector *head_vec, *curr_vec;
     head_vec = calloc(1,sizeof(struct vector));
     curr_vec = head_vec;
     int i;
     for(i=0; i<num_points; i++){
         curr_vec->cords = create_cord_from_arr(size_of_vec, point_arr[i]);
-        if(i == num_points-1){
+        if((bool) && (i == num_points-1)){
             break;
         }
         curr_vec->next = calloc(1,sizeof(struct vector));;
@@ -506,7 +502,7 @@ static PyObject* kmeans_wrap(PyObject *self, PyObject *args)
 
 
 /* This builds the answer ("d" = Convert a C double to a Python floating point number) back into a python object */
-    return Py_BuildValue("O", kmeans_c( k, size_of_vec, num_of_dp, iter, e, dp_arr, centroids_arr)); /*  Py_BuildValue(...) returns a PyObject*  */
+    return kmeans_c( k, size_of_vec, num_of_dp, iter, e, dp_arr, centroids_arr); /*  Py_BuildValue(...) returns a PyObject*  */
 }
 
 static PyMethodDef kmeansMethods[] = {
