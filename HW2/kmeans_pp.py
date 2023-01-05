@@ -29,9 +29,9 @@ def main():
 
     centroids, list_of_indx = create_centroids(dp, K)
     
-    last_centroids = kmeans_capi.kmeans_wrap(K, iter, eps, dp, centroids, len(dp[0]), len(dp))
-    
-    output_print(last_centroids, list_of_indx)
+    last_centroids = kmeans_capi.fit(K, iter, eps, dp, centroids, len(dp[0]), len(dp))
+    a = 4
+    output_print(last_centroids, list_of_indx,len(dp[0]))
 
     return
 
@@ -78,10 +78,11 @@ def inputValidation(K,iter,N):
         return True
     return False
 
-def output_print(centroids, list_of_indx):
+def output_print(centroids, list_of_indx,size_of_vec):
     indx_str = ""
     for i in range(len(list_of_indx)):
-        indx_str += list_of_indx[i]
+        added = str(list_of_indx[i])
+        indx_str += added
         if i==len(list_of_indx)-1:
             break
         indx_str += ","
@@ -89,13 +90,15 @@ def output_print(centroids, list_of_indx):
 
     for x in centroids:
         line = ''
-        for i in range(len(x[0])):
+        for i in range(size_of_vec):
             if i!= 0:
                 line += ","
-            x[0][i] = "{:.4f}".format(x[0][i])
-            line += x[0][i].__str__()
+            add = x[i]
+            add = "{:.4f}".format(add)
+            add = str(add)
+            line += add.__str__()
         print(line)
-
+    print()
 def first_choose (dp, list_of_indx):
     a = np.random.choice(range(1,len(dp)))
     list_of_indx.append(a-1)
