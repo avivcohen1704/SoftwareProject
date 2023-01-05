@@ -24,7 +24,7 @@ int isNum (char *s);
 int isDigit(char c);
 struct cords* create_cord_from_arr(int size_of_vec, double cord[size_of_vec]);
 struct vector* arr_to_ll(int num_points, int size_of_vec, double point_arr[num_points][size_of_vec],int bool);
-int kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double dp_arr[num_of_dp][size_of_vec], double *centroids_arr[k][size_of_vec]);
+PyObject* kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double dp_arr[num_of_dp][size_of_vec], double *centroids_arr[k][size_of_vec]);
 PyObject* kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k, int iter, int num_of_dp,double e, int size_of_vec);
 PyObject* ll_to_arr(struct vector *centroids, int k, int size_of_vec);
 PyObject* create_vec_from_arr(struct cord *cord,  int size_of_vec);
@@ -42,7 +42,7 @@ struct vector
 };
 
 
-int kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double dp_arr[num_of_dp][size_of_vec], double *centroids_arr[k][size_of_vec])
+PyObject* kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double dp_arr[num_of_dp][size_of_vec], double *centroids_arr[k][size_of_vec])
 {
     struct vector *dp_head;
     struct vector *centroids_head_vec;
@@ -450,7 +450,7 @@ struct cords* create_cord_from_arr(int size_of_vec, double cord[size_of_vec]){
 }
 
 
-static PyObject* kmeans_wrap(PyObject *self, PyObject *args)
+static PyObject* fit(PyObject *self, PyObject *args)
 {
     int k;
     int iter;
@@ -506,8 +506,8 @@ static PyObject* kmeans_wrap(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef kmeansMethods[] = {
-    {"kmeans_wrap",                   /* the Python method name that will be used */
-      (PyCFunction) kmeans_wrap, /* the C-function that implements the Python function and returns static PyObject*  */
+    {"fit",                   /* the Python method name that will be used */
+      (PyCFunction) fit, /* the C-function that implements the Python function and returns static PyObject*  */
       METH_VARARGS,           /* flags indicating parameters
 accepted for this function */
       PyDoc_STR("Calcs the kmeans algorithm for the given centroids")}, /*  The docstring for the function */
