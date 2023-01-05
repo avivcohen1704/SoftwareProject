@@ -12,19 +12,19 @@ struct cord* createVector(struct cord *x);
 struct vector* createEmptyCentroids(int k, int size_of_vector);
 double euclideanDistance(struct cord *x1, struct cord *x2);
 int getCordLength(struct vector *dp_head);
-void divide_centroid(struct vector *new_centroid, int num_of_dp_in_cluster[], int k);
-void check_converge(struct vector *new_head_vec, struct vector *head_vec1, int convergence_array[], int k, double e);
+void divide_centroid(struct vector *new_centroid, int* num_of_dp_in_cluster, int k);
+void check_converge(struct vector *new_head_vec, struct vector *head_vec1, int* convergence_array, int k, double e);
 void addCords(struct cord *curr_cord1, struct cord *min_cord);
-void create_Array(int array[], int len);
+void create_Array(int* array, int len);
 struct cord* createEmptyCord(int size_of_vector);
 struct vector* copyOf(struct vector *old_centroid);
 void freeSpaceCord(struct cord *Cord);
 void freeSpaceVec(struct vector *vec);
 int isNum (char *s);
 int isDigit(char c);
-struct cords* create_cord_from_arr(int size_of_vec, double cord[size_of_vec]);
-struct vector* arr_to_ll(int num_points, int size_of_vec, double point_arr[num_points][size_of_vec],int bool);
-PyObject* kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double dp_arr[num_of_dp][size_of_vec], double *centroids_arr[k][size_of_vec]);
+struct cords* create_cord_from_arr(int size_of_vec, double* cord);
+struct vector* arr_to_ll(int num_points, int size_of_vec, double** point_arr,int bool);
+PyObject* kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double** dp_arr, double** centroids_arr);
 PyObject* kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k, int iter, int num_of_dp,double e, int size_of_vec);
 PyObject* ll_to_arr(struct vector *centroids, int k, int size_of_vec);
 PyObject* create_vec_from_arr(struct cord *cord,  int size_of_vec);
@@ -42,7 +42,7 @@ struct vector
 };
 
 
-PyObject* kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double dp_arr[num_of_dp][size_of_vec], double *centroids_arr[k][size_of_vec])
+PyObject* kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double** dp_arr, double** centroids_arr)
 {
     struct vector *dp_head;
     struct vector *centroids_head_vec;
@@ -176,6 +176,7 @@ PyObject* kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,i
     free(convergence_array);
     free(num_of_dp_in_cluster);
 
+
     return final_centroids_py;
 
 }
@@ -243,7 +244,7 @@ int getCordLength(struct vector *dp_head){
     return res;
 }
 
-void divide_centroid(struct vector *new_centroid, int num_of_dp_in_cluster[], int k){
+void divide_centroid(struct vector *new_centroid, int* num_of_dp_in_cluster, int k){
     struct vector *curr_vec;
     struct cord *curr_cord;
     int i;
@@ -263,7 +264,7 @@ void divide_centroid(struct vector *new_centroid, int num_of_dp_in_cluster[], in
     }
 }
 
-void check_converge(struct vector *new_head_vec, struct vector *head_vec1, int convergence_array[], int k, double e){
+void check_converge(struct vector *new_head_vec, struct vector *head_vec1, int* convergence_array, int k, double e){
     int i;
     for(i=0; i<k; i++){
         if(convergence_array[i]==1){
@@ -289,7 +290,7 @@ void addCords(struct cord *curr_cord1, struct cord *min_cord){
     }
 }
 
-void create_Array(int array[], int len){
+void create_Array(int* array, int len){
     int i;
     for( i=0; i<len; i++){
         array[i] = 0;
@@ -417,7 +418,7 @@ PyObject* create_vec_from_arr(struct cord *cord,  int size_of_vec){
     return res;
 }
 
-struct vector* arr_to_ll(int num_points, int size_of_vec, double point_arr[num_points][size_of_vec],int bool){
+struct vector* arr_to_ll(int num_points, int size_of_vec, double** point_arr,int bool){
     struct vector *head_vec, *curr_vec;
     head_vec = calloc(1,sizeof(struct vector));
     curr_vec = head_vec;
@@ -433,7 +434,7 @@ struct vector* arr_to_ll(int num_points, int size_of_vec, double point_arr[num_p
     return head_vec;
 }
 
-struct cords* create_cord_from_arr(int size_of_vec, double cord[size_of_vec]){
+struct cords* create_cord_from_arr(int size_of_vec, double* cord){
     struct cord *head_cord, *curr_cord;
     head_cord = calloc(1,sizeof(struct cord));
     curr_cord = head_cord;
@@ -449,6 +450,13 @@ struct cords* create_cord_from_arr(int size_of_vec, double cord[size_of_vec]){
     return head_cord;
 }
 
+void free_space_arr_of_arr(int size, double **arr){
+    int i;
+    for(i=0; i<size; i++){
+        free(arr[i]);
+    }
+    free(arr);
+}
 
 static PyObject* fit(PyObject *self, PyObject *args)
 {
@@ -499,10 +507,13 @@ static PyObject* fit(PyObject *self, PyObject *args)
         }
     }
 
+    PyObject* result = kmeans_c( k, size_of_vec, num_of_dp, iter, e, dp_arr, centroids_arr);
 
+    free_space_arr_of_arr(k,centroids_arr_py);
+    
+    free_space_arr_of_arr(num_of_dp, dp_arr);
 
-/* This builds the answer ("d" = Convert a C double to a Python floating point number) back into a python object */
-    return kmeans_c( k, size_of_vec, num_of_dp, iter, e, dp_arr, centroids_arr); /*  Py_BuildValue(...) returns a PyObject*  */
+    return result;
 }
 
 static PyMethodDef kmeansMethods[] = {
