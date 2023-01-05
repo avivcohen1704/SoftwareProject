@@ -478,6 +478,9 @@ static PyObject* fit(PyObject *self, PyObject *args)
                         PyObject* so it is used to signal that an error has occurred. */
     }
 
+    dp_arr = (double**)calloc()
+    centroids_arr = 
+
     double dp_arr[num_of_dp][size_of_vec];
     double centroids_arr[k][size_of_vec];
     double cords[size_of_vec];
