@@ -22,31 +22,37 @@ def main():
     K = int(K)
     iter = int(iter)
 
-    dp = create_dp(file_name_1, file_name_2)
+    dp, indx = create_dp(file_name_1, file_name_2)
 
     if inputValidation(K,iter,len(dp)) == True:
         return
+    
+    val_of_indx = indx.tolist()
+    for i in range(len(val_of_indx)):
+        val_of_indx[i]=int(val_of_indx[i])
+    
+    ##################here we have "val_of_indx" which is list with indx int values
 
-    centroids, list_of_indx = create_centroids(dp, K)
+
+    centroids, list_of_indx = create_centroids(dp, K, val_of_indx)
     
     last_centroids = kmeans_capi.fit(K, iter, eps, dp, centroids, len(dp[0]), len(dp))
-    a = 4
+
     output_print(last_centroids, list_of_indx,len(dp[0]))
 
     return
 
 
-
-
-
 def create_dp(file_name_1, file_name_2):
     dp = []
+    indx =[]
     file_1 = pd.read_csv(file_name_1, header = None)
     file_2 = pd.read_csv(file_name_2,header = None)
     pandas_dp = pd.merge(left = file_1, right = file_2, left_on =  file_1.columns[0], right_on= file_2.columns[0], how = "inner", sort = True)
+    indx = pandas_dp.iloc[:,0]
     pandas_dp = pandas_dp.drop(pandas_dp.columns[0],axis=1)
     dp = pandas_dp.to_numpy().tolist()
-    return dp
+    return dp, indx
 
 def split_program_args():
     if(len(sys.argv)>6 or len(sys.argv)<5):
@@ -99,9 +105,10 @@ def output_print(centroids, list_of_indx,size_of_vec):
             line += add.__str__()
         print(line)
     print()
-def first_choose (dp, list_of_indx):
+
+def first_choose (dp, list_of_indx, val_of_indx):
     a = np.random.choice(range(1,len(dp)))
-    list_of_indx.append(a-1)
+    list_of_indx.append(val_of_indx[a-1])
     return dp[a-1]
 
 def calc_probability (dp,centroids):
@@ -119,21 +126,21 @@ def calc_probability (dp,centroids):
     probability_arr = [dist[i]/total for i in range(len(dist))]
     return probability_arr
 
-def create_centroids(dp, K):
+def create_centroids(dp, K, val_of_indx):
     centroids = []
     list_of_indx = []
-    centroids.append(first_choose(dp, list_of_indx))
+    centroids.append(first_choose(dp, list_of_indx,val_of_indx))
     for i in range(K-1):
         prob_arr = calc_probability(dp, centroids)
-        cen = choose_centroid(dp,centroids,prob_arr)
-        centroids.append(dp[cen])
+        cen , correct_indx = choose_centroid(dp,centroids,prob_arr,val_of_indx)
+        centroids.append(dp[correct_indx])
         list_of_indx.append(cen)
     return centroids, list_of_indx
 
-def choose_centroid(dp,centroids,prob_arr):
-    indx = [i for i in range(len(prob_arr))]
-    cen = np.random.choice(indx, p = prob_arr)
-    return cen
+def choose_centroid(dp,centroids,prob_arr,val_of_indx):
+    cen = np.random.choice(val_of_indx, p = prob_arr)
+    correct_indx = val_of_indx.index(cen)
+    return cen,correct_indx
 
 def euclideanDistance(x1,x2):
     d = 0
