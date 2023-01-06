@@ -163,8 +163,6 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
     curr_cord2 = head_vec2->cords;
 
     while(convergenceCNT<k && iterCNT<iter){
-        printf("\nthe iteration is:%d",iterCNT);
-
         int cnt;
         int l;    
         create_Array(num_of_dp_in_cluster, k); /* resets the nuber if dp in cluster*/
@@ -230,21 +228,18 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
         for (l=0; l<k; l++){
             if(convergence_array[l]==1){
                 int val = convergence_array[l];
-                cnt+=1;
+                cnt+=val;
             }
         }
         convergenceCNT = cnt;
         iterCNT +=1;
 
-       
-
         freeSpaceVec(head_vec2);
         curr_vec2 = copyOf(new_head_vec);
         head_vec2 = curr_vec2;
 
-
-
     }
+    
     new_curr_vec = new_head_vec;
     new_curr_cord = new_curr_vec->cords;
 
@@ -273,14 +268,14 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
 
 
 int inputValidation(int k, int iter, int num_of_dp){
-    /*if((k<=1) || (k>=num_of_dp) || (k%1 !=0)){
+    if((k<=1) || (k>=num_of_dp) || (k%1 !=0)){
         printf("Invalid number of clusters!");
         return 1;
     }
     if((iter <= 1) || (iter >= 1000) || (iter % 1 != 0)) {
         printf("Invalid maximum iteration!");
         return 1;
-    }*/
+    }
     return 0;
 }
 
@@ -399,11 +394,13 @@ void check_converge(struct vector *new_head_vec, struct vector *head_vec1, int c
 
     for(i=0; i<k; i++){
         if(convergence_array[i]==1){
+            curr_vec1 = curr_vec1->next;
+            curr_vec2 = curr_vec2->next;
             continue;
         }
-        
-        float d = euclideanDistance(curr_vec1->cords,curr_vec2->cords);
-        if(d < e){
+        double d =euclideanDistance(curr_vec1->cords,curr_vec2->cords);
+
+        if( d< e){
             convergence_array[i] = 1;
         }
         curr_vec1 = curr_vec1->next;
