@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import sys
-import kmeans_capi
+import mykmeanssp
 np.random.seed(0)
 
 def main():
@@ -36,11 +36,12 @@ def main():
 
     centroids, list_of_indx = create_centroids(dp, K, val_of_indx)
     
-    last_centroids = kmeans_capi.fit(K, iter, eps, dp, centroids, len(dp[0]), len(dp))
+    last_centroids = mykmeanssp.fit(K, iter, eps, dp, centroids, len(dp[0]), len(dp))
 
     output_print(last_centroids, list_of_indx,len(dp[0]))
 
     return
+
 
 
 def create_dp(file_name_1, file_name_2):
