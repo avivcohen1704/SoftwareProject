@@ -227,8 +227,7 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
         cnt = 0;
         for (l=0; l<k; l++){
             if(convergence_array[l]==1){
-                int val = convergence_array[l];
-                cnt+=val;
+                cnt+=1;
             }
         }
         convergenceCNT = cnt;
