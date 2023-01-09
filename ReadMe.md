@@ -8,6 +8,8 @@ Implemented using arrays
 ### C implementation
 Implemented using Linked Lists
 
+[Assignment 1.pdf](https://github.com/avivcohen1704/SoftwareProject/files/10373484/Assignment.1.pdf)
+
 grade - 100
 
 ## Homework 2
@@ -18,6 +20,8 @@ Both are connected via Python to C API
 
 bonus file - 
 displays the elbow of the graph of the inertia value agianst the number of centroids using the data from iris database using sklearn's kmeans and kmeans++
+
+[Assignment 2.pdf](https://github.com/avivcohen1704/SoftwareProject/files/10373490/Assignment.2.pdf)
 
 
 
