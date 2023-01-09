@@ -23,5 +23,10 @@ displays the elbow of the graph of the inertia value agianst the number of centr
 
 [Assignment 2.pdf](https://github.com/avivcohen1704/SoftwareProject/files/10373490/Assignment.2.pdf)
 
+## contributors
+Omri Ravona
+GitHub - @omri0702
 
+Aviv Cohen
+GitHub - @avivcohen1704
 
