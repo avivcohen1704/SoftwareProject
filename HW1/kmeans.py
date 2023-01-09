@@ -1,4 +1,5 @@
 import sys
+import copy
 
 e = 0.001
 convergenceCnt = 0
@@ -50,8 +51,7 @@ def kmeans(K, iter=200, inputData=None):
 
     
     '''the repeat loop'''
-    while iterCnt < iter or convergenceCnt < K:
-
+    while iterCnt < iter and convergenceCnt < K:
         #initialize empty clusters
         clusters = [[] for x in range(K)]
 
@@ -81,10 +81,11 @@ def kmeans(K, iter=200, inputData=None):
             x[0][i] = "{:.4f}".format(x[0][i])
             line += x[0][i].__str__()
         print(line)
+    print()
 
 
 def updateCen(clusters,centroids,convergenceCnt):    #### there is a problame here!!!!!!!!!
-    oldCen = centroids
+    oldCen = copy.deepcopy(centroids)
     for i in range(len(centroids)): # for every centroid
         centroids[i][0] = [0 for x in range(len(centroids[i][0]))]
         for x in clusters[i]: # for every datapoint in cluster[i]
@@ -93,7 +94,7 @@ def updateCen(clusters,centroids,convergenceCnt):    #### there is a problame he
         centroids[i][0] = [x /len(clusters[i]) for x in centroids[i][0]]
         if euclideanDistance(centroids[i][0],oldCen[i][0]) < e and centroids[i][1] == False:
             convergenceCnt += 1
-            centroids[i][1] == True
+            centroids[i][1] = True
     return [centroids,convergenceCnt]
 
 def getCentroids(X, K):
@@ -123,10 +124,10 @@ def euclideanDistance(x1,x2):
 
 def inputValidation(K,iter,N):
     if (K<=1) or (K>=N) or (K%1 != 0):
-        print("Invalud number of clusters!")
+        print("Invalid number of clusters!")
         return True
     if(iter<=1) or (iter>=1000) or (iter%1 !=0):
-        print("Invalid maximum interation!")
+        print("Invalid maximum iteration!")
         return True
     return False
 

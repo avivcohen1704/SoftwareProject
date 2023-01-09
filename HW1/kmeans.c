@@ -164,7 +164,7 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
 
     while(convergenceCNT<k && iterCNT<iter){
         int cnt;
-        int l;
+        int l;    
         create_Array(num_of_dp_in_cluster, k); /* resets the nuber if dp in cluster*/
 
         head_vec1 = dp_head;
@@ -223,7 +223,7 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
 
         }
         divide_centroid(new_head_vec, num_of_dp_in_cluster, k);
-        check_converge(new_head_vec, head_vec1, convergence_array, k);
+        check_converge(new_head_vec, head_vec2, convergence_array, k);
         cnt = 0;
         for (l=0; l<k; l++){
             if(convergence_array[l]==1){
@@ -237,9 +237,8 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
         curr_vec2 = copyOf(new_head_vec);
         head_vec2 = curr_vec2;
 
-
-
     }
+    
     new_curr_vec = new_head_vec;
     new_curr_cord = new_curr_vec->cords;
 
@@ -257,6 +256,7 @@ void kmeans(struct vector *dp_head, struct vector *old_centroids_head_vec,int k,
         new_curr_vec = new_curr_vec->next;
         new_curr_cord = new_curr_vec->cords;
     }
+    printf("\n");
 
     freeSpaceVec(head_vec2);
     freeSpaceVec(dp_head);
@@ -386,13 +386,25 @@ void divide_centroid(struct vector *new_centroid, int num_of_dp_in_cluster[], in
 
 void check_converge(struct vector *new_head_vec, struct vector *head_vec1, int convergence_array[], int k){
     int i;
+    double d;
+    struct vector *curr_vec1, *curr_vec2;
+    curr_vec1 = new_head_vec;
+    curr_vec2 = head_vec1;
+    
+
     for(i=0; i<k; i++){
         if(convergence_array[i]==1){
+            curr_vec1 = curr_vec1->next;
+            curr_vec2 = curr_vec2->next;
             continue;
         }
-        if(euclideanDistance(new_head_vec->cords,head_vec1->cords) < e){
+        d = euclideanDistance(curr_vec1->cords,curr_vec2->cords);
+
+        if( d< e){
             convergence_array[i] = 1;
         }
+        curr_vec1 = curr_vec1->next;
+        curr_vec2 = curr_vec2->next;
     }
 }
 
