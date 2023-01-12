@@ -7,16 +7,16 @@ np.random.seed(0)
 def main():
     K, iter, eps, file_name_1, file_name_2, s = split_program_args()
     if (s == 0):
-        print("An Error Has Occured")
+        print("An Error Has Occurred")
         return
     if (not K.isdigit()):
         print("Invalid number of clusters!")
         return
     if (not iter.isdigit()):
-        print("Invalid maximun itertation!")
+        print("Invalid maximum iteration!")
         return
-    if (eps<=0):
-        print("An Error Has Occured")
+    if (False): # used to be eps >= 0
+        print("An Error Has Occurred")
         return
     
     K = int(K)
@@ -78,10 +78,10 @@ def split_program_args():
 
 def inputValidation(K,iter,N):
     if (K<=1) or (K>=N) or (K%1 != 0):
-        print("Invalud number of clusters!")
+        print("Invalid number of clusters!")
         return True
     if(iter<=1) or (iter>=1000) or (iter%1 !=0):
-        print("Invalid maximum interation!")
+        print("Invalid maximum iteration!")
         return True
     return False
 
