@@ -1,60 +1,58 @@
 #include <Python.h>
-#include "spkeamns.h"
 # include <stdio.h>
 # include <stdlib.h>
 # include <math.h>
 # include <string.h>
+#include "spkmeans.h"
+
 
 double eps = 0.000001;
 int max_iter=100;
 
-double ** jacobi_c(int n, double[n][n] A);
-int * max_off_diag(int n, double[n][n] A);
+void max_off_diag(int n, double A[n][n], int pivot[2]);
 int sign(double a);
-double ** rotation(int n,double s,c, double [2] pivot, double[n][n] A);
-double** ID(int n);
-double ** dot(int n, double[n][n] a, double[n][n] b);
-double sum_dot(int n, double [n]row, double[n]col);
-double * calc_col(int j, int n, double [n][n] matrix);
-int check_converge(int n, double [n][n] A, double [n][n] new_A);
-double ** add_eigenV(int n, double [n][n] A, double [n][n] V);
+void rotation(int n,double s,double c, int pivot [2], double A[n][n], double new_A[n][n]);
+void ID(int n, double res[n][n]);
+void dot(int n, double a [n][n] , double b[n][n]);
+double sum_dot(int n, double row[n], double col[n]);
+void calc_col(int j, int n, double matrix[n][n], double col[n] );
+int check_converge(int n, double A[n][n] , double new_A[n][n] );
+void add_eigenV(int n, double A [n][n] , double V[n][n], double res[n+1][n] );
 
 
 
-
-double ** jacobi_c(int n, double[n][n] A){
+    void jacobi_c(int n, double A[n][n] , double res[n+1][n]){
     int iter,i,j;
-    double [n+1][n] res;
-    double [n][n] V,P,new_A;
-    V = ID(n);
+    double V[n][n];
+    double P[n][n];
+    double new_A[n][n];
+
+    ID(n,V);
 
     for(iter=0;iter<max_iter;iter++){
         double theta, t, c, s;
-        int[2] pivot;
-        P = ID(n);
-        pivot = max_off_diag(n,A);
+        int pivot[2] ;
+        ID(n,P);
+        max_off_diag(n,A, pivot);
         theta = (A[pivot[1]][pivot[1]]-A[pivot[0]][pivot[0]])/(2*A[pivot[0]][pivot[1]]);
         t = (sign(theta))/(abs(theta)+pow(pow(theta,2)+1,0.5));
         c = 1/ pow(pow(t,2)+1,0.5);
         s = t*c;
-        new_A = rotation(n , s, c ,pivot, A);
+        rotation(n , s, c ,pivot, A, new_A);
         P[pivot[0]][pivot[0]] = c;
         P[pivot[1]][pivot[1]] = c;
         P[pivot[1]][pivot[0]] = -s;
         P[pivot[0]][pivot[1]] = s;
-        V = dot(n,V,P);
+        dot(n,V,P);
 
         if (check_converge(n,A,new_A)){break;}
         A = new_A;
     }
-    res = add_eigenV(n,new_A,V);
-    return res;
-
+    add_eigenV(n,new_A,V, res);
 }
 
 
-int * max_off_diag(int n, double[n][n] A){
-    int [2] ret;
+void max_off_diag(int n, double A[n][n], int pivot[2]){
     int i,j;
     double max;
     max = -1;
@@ -64,12 +62,11 @@ int * max_off_diag(int n, double[n][n] A){
                 continue;
             }
             if(abs(A[i][j])>max){
-                ret[0] = i;
-                ret[1] = j;
+                pivot[0] = i;
+                pivot[1] = j;
             }
         }
     }
-    return ret;
 }
 
 int sign(double a){
@@ -81,9 +78,8 @@ int sign(double a){
     }
 }
 
-double ** rotation(int n,double s,c, double [2] pivot, double[n][n] A){
+void rotation(int n,double s, double c, int pivot [2], double A[n][n] , double new_A[n][n]){
     int r,i,j,k,l;
-    double [n][n] new_A;
     i = pivot[0];
     j = pivot[1];
     for (k=0;k<n;k++){
@@ -101,12 +97,9 @@ double ** rotation(int n,double s,c, double [2] pivot, double[n][n] A){
     new_A[i][i] = pow(c,2)*A[i][i] + pow(s,2)*A[j][j]-2*s*c*A[i][j];   /*#3*/
     new_A[j][j] = pow(s,2)*A[i][i] + pow(c,2)*A[j][j] + 2*c*s*A[i][j]; /*#4*/ 
     new_A[i][j] = 0;                                                   /*#5*/
-    
-    return new_A;
-}
+    }
 
-double** ID(int n){
-    double [n][n] res;
+void ID(int n, double res[n][n]){
     int i,j;
     for (i=0; i<n;i++){
         for(j=0;j<n;j++){
@@ -116,23 +109,20 @@ double** ID(int n){
             else{res[i][j] = 0;}
         }
     }
-    return res;
 }
 
-double ** dot(int n, double[n][n] a, double[n][n] b){
+void dot(int n, double a[n][n] , double b[n][n]){
     int i,j;
-    double [n][n] ret;
+    double col[n];
     for(i=0;i<n;i++){
         for(j=0;j<n;j++){
-            col = calc_col(j,n,b);
-            ret[i][j] = sum_dot(n,a[i],col);
+            calc_col(j,n,b, col);
+            a[i][j] = sum_dot(n,a[i],col);
         }
     }
-    return ret;
-
 }
 
-double sum_dot(int n, double [n]row, double[n]col){
+double sum_dot(int n, double row[n], double col[n]){
     double sum;
     int i;
     sum =0;
@@ -143,16 +133,14 @@ double sum_dot(int n, double [n]row, double[n]col){
     
 }
 
-double * calc_col(int j, int n, double [n][n] matrix){
-    double [n] col;
+void calc_col(int j, int n, double matrix[n][n],double col[n] ){
     int i;
     for (i=0; i<n; i++){
         col[i] = matrix[i][j];
     }
-    return col;
 }
 
-int check_converge(int n, double [n][n] A, double [n][n] new_A){
+int check_converge(int n, double A[n][n] , double new_A[n][n] ){
     int i,j;
     double d1,d2;
     for (i=0;i<n;i++){
@@ -175,8 +163,8 @@ int check_converge(int n, double [n][n] A, double [n][n] new_A){
     return 0;
 }
 
-double ** add_eigenV(int n, double [n][n] A, double [n][n] V){
-    double [n+1][n] res;
+void add_eigenV(int n, double A[n][n] , double V[n][n], double res[n+1][n]){
+    
     int i,j;
     for (i=0;i<n;i++){
         for (j=0;j<n;j++){
@@ -186,5 +174,4 @@ double ** add_eigenV(int n, double [n][n] A, double [n][n] V){
     for (i=0;i<n;i++){
         res[n+1][i] = A[i][i];
     }
-    return res;
 }
