@@ -1,16 +1,15 @@
 #include <Python.h>
-#include "spkeamns.h"
 # include <stdio.h>
 # include <stdlib.h>
 # include <math.h>
 # include <string.h>
+#include "spkmeans.h"
 
-int ** ddg_c(int n, double[n][n]W);
-double sum_row (int n; double [n] arr);
 
-int ** ddg_c(int n, double[n][n]W){
+double sum_row (int n, double arr[n]);
+
+void ddg_c(int n, double W[n][n], double D[n][n]){
     int i, j;
-    double [n][n] D;
     for(i=0;i<n;i++){
         for(j=0;j<n;j++){
             if(i!=j){
@@ -21,15 +20,13 @@ int ** ddg_c(int n, double[n][n]W){
             }
         }
     }
-    return D;
-
 }
 
-double sum_row (int n; double [n] arr){
+double sum_row (int n, double arr[n] ){
     int i;
     double ret;
     ret=0;
-    for (i=0;i<n;i++){
+    for (i=0; i<n ;i++){
         ret = ret + arr[i];
     }
     return ret;
