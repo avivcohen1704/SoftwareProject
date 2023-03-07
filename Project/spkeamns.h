@@ -12,13 +12,13 @@ struct vector
     struct cord *cords;
 };
 
-int ** wam_c(int n, int[n][n] arr);
+void wam_c(int n, int m, double arr[n][m] , double output_array[n][n]);
 
-int ** ddg_c(int n, double[n][n]W);
+void ddg_c(int n, double W[n][n], double D[n][n]);
 
-double ** gl_c(int n, double[n][n] D, double[n][n]W);
+void gl_c(int n, double D[n][n], double W[n][n], double output_array[n][n]);
 
-double ** jacobi_c(int n, double[n][n] A);
+void jacobi_c(int n, double A[n][n], double output_array[n+1][n]);
 
 
 # endif
