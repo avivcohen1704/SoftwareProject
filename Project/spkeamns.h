@@ -20,5 +20,6 @@ void gl_c(int n, double D[n][n], double W[n][n], double output_array[n][n]);
 
 void jacobi_c(int n, double A[n][n], double output_array[n+1][n]);
 
+//PyObject* kmeans_c(int k, int size_of_vec , int num_of_dp,int iter, double e, double dp_arr[num_of_dp][size_of_vec], double centroids_arr[k][size_of_vec]);
 
 # endif
