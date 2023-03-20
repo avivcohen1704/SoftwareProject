@@ -1,10 +1,11 @@
 import sys
 import pandas as pd
 import numpy as np
+import myspkmeans
 
 
 def main():
-    funcs = ["skp","wam","ddg","gl","jacobi"]
+    funcs = ["spk","wam","ddg","gl","jacobi"]
     k, func, fileName = split_program_args()
     if func == 0:
         print("An Error Has Occurred")
@@ -18,36 +19,39 @@ def main():
     n = len(df)
     df = df.drop(df.columns[0],axis=1)
     dp = df.to_numpy().tolist()
+    m = len(dp[0])
 
-
-    if func == "skp":
-        skp(k, dp)
+    if func == "spk":
+        spk(k, dp)
     elif func == "wam":
-        wam(dp)
+        myspkmeans.wrap_wam(n,m,dp)
     elif func == "ddg":
-        ddg(dp)
+        myspkmeans.wrap_ddg(n,m,dp)
     elif func == "gl":
-        gl(dp)
+        myspkmeans.wrap_gl(n,m,dp)
     elif func == "jacobi":
-        jacobi(dp)
+        myspkmeans.wrap_jacobi(n,dp)
 
-def skp(k, dp):
-    V,l = c_spk(dp)
-
+def spk(k, dp):
+    n = len(dp)
+    m = len(dp[0])
+    M = myspkmeans.warp_spk(n,m,dp)
+    V = M[0:n+1]
+    l = M[n+1]
     V,l = new_sort(V,l)
 
     if k == -1:
-        k = compute_gap(V,l)
+        k = compute_gap(l)
     
     V = np.array(V)
 
     final_dp = V[:,:k]
 
-    centroids, list_of_indx= create_centroids(final_dp, k)
-
-    final_res = fit(k, 300, 0, final_dp, centroids,len(final_dp[0]), len(final_dp))
+    centroids, list_of_indx = create_centroids(final_dp, k)
     
-    output_print_skp(final_res, list_of_indx, k)
+    final_res = fit(k, 300, 0.00001, final_dp, centroids,len(final_dp[0]), len(final_dp))
+    
+    output_print_spk(final_res, list_of_indx, k)
 
 def new_sort(V,l):
     Vnp = np.array(V)
@@ -73,12 +77,13 @@ def compute_gap(l):
     return k
 
 def create_centroids(dp,k):
+    val_of_indx = [i for i in range(len(dp))]
     centroids = []
     list_of_indx = []
     centroids.append(first_choose(dp, list_of_indx))
     for i in range(k-1):
         prob_arr = calc_probability(dp, centroids)
-        cen , correct_indx = choose_centroid(dp,centroids,prob_arr)
+        cen , correct_indx = choose_centroid(dp,centroids,prob_arr, val_of_indx)
         centroids.append(dp[correct_indx])
         list_of_indx.append(cen)
     return centroids, list_of_indx
@@ -131,7 +136,7 @@ def split_program_args():
     k = int(k)
     return k, func, fileName
 
-def output_print_skp(centroids, list_of_indx,size_of_vec):
+def output_print_spk(centroids, list_of_indx,size_of_vec):
     indx_str = ""
     for i in range(len(list_of_indx)):
         added = str(list_of_indx[i])
@@ -155,7 +160,6 @@ def output_print_skp(centroids, list_of_indx,size_of_vec):
 
 if __name__ == "__man__":
     main()
-
 
 
 
