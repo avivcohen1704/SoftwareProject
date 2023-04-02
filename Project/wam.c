@@ -1,4 +1,3 @@
-#include <Python.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <math.h>
@@ -11,6 +10,7 @@ double exp_euclidean_distance(int n, double x[n] , double y[n] );
 
 void wam_c(int n, int m, double arr[n][m] , double output_array[n][n]){
     int i,j;
+    
     for (i=0; i<n; i++){
         for(j=0;j<n;j++){
             if(i==j){
@@ -19,8 +19,11 @@ void wam_c(int n, int m, double arr[n][m] , double output_array[n][n]){
             else{
                 output_array[i][j]= exp_euclidean_distance(m, arr[i],arr[j]);
             }
+            
         }
     }
+    
+    
 }
 
 
