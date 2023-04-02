@@ -4,19 +4,19 @@
 
 
 
-PyObject* toPy(int n, double input[n+1][n], PyObject* output);
+PyObject* toPyJ(int n, double input[n+1][n]);
+PyObject* toPy(int n, double input[n][n]);
 void create_vec(int n, double curr[n], PyObject* row);
-void output_print(int num_of_dp,double  output_array[num_of_dp][num_of_dp]);
-void output_print_j(int num_of_dp,double output_array[num_of_dp+1][num_of_dp]);
+
 
 static PyObject* wrap_spk(PyObject *self, PyObject *args)
 {
     int i,j;
     int num_of_dp, size_of_vec;
-    PyObject *dp_arr_py;
+    PyObject *dp_arr_py, *res;
     PyObject *item1, *item2;
-    PyObject *Py_matrix;
     double val;
+    res = NULL;
 
     if(!PyArg_ParseTuple(args, "iiO", &num_of_dp, &size_of_vec,&dp_arr_py)) {
         return NULL; 
@@ -45,31 +45,45 @@ static PyObject* wrap_spk(PyObject *self, PyObject *args)
     ddg_c(num_of_dp, wam_array, ddg_array);
     gl_c(num_of_dp,ddg_array,wam_array,gl_array);
     jacobi_c(num_of_dp, gl_array, output_array);
-
-    return toPy(num_of_dp, output_array, Py_matrix);
+    
+    res =  toPyJ(num_of_dp, output_array);
+    return res;
      
 }  
 
-static void wrap_wam(PyObject *self, PyObject *args)
+static PyObject* wrap_wam(PyObject *self, PyObject *args)
 {
+    
+
     int i,j;
     int num_of_dp, size_of_vec;
-    PyObject *dp_arr_py;
+    PyObject *dp_arr_py, *res;
     PyObject *item1, *item2;
     double val;
-
+    res= NULL;
+    item1 = NULL;
+    item2 = NULL;
     if(!PyArg_ParseTuple(args, "iiO", &num_of_dp, &size_of_vec,&dp_arr_py)) {
-        return ; 
+        return NULL; 
     }
+    
+    
 
     double cords[size_of_vec];
     double dp_arr[num_of_dp][size_of_vec];
     double output_array[num_of_dp][num_of_dp];
+    
+
+    
     for(i=0; i<num_of_dp; i++){
         item1 = PyList_GetItem(dp_arr_py,i);
+        
         for(j=0; j<size_of_vec; j++){
+            
             item2 = PyList_GetItem(item1, j);
+            
             val = PyFloat_AsDouble(item2);
+            
             cords[j] = val;
         }
         for(j=0; j<size_of_vec; j++){
@@ -77,12 +91,14 @@ static void wrap_wam(PyObject *self, PyObject *args)
         }
 
     }
-
+    
     wam_c(num_of_dp,size_of_vec,dp_arr,output_array);
-    output_print(num_of_dp, output_array);
+    
+    res = toPy(num_of_dp, output_array);
+    return res;
 }
 
-static void wrap_ddg(PyObject *self, PyObject *args)
+static PyObject* wrap_ddg(PyObject *self, PyObject *args)
 {
     int i,j;
     int num_of_dp, size_of_vec;
@@ -91,7 +107,7 @@ static void wrap_ddg(PyObject *self, PyObject *args)
     double val;
 
     if(!PyArg_ParseTuple(args, "iiO", &num_of_dp, &size_of_vec,&dp_arr_py)) {
-        return;
+        return NULL;
     }
 
     double cords[size_of_vec];
@@ -113,10 +129,10 @@ static void wrap_ddg(PyObject *self, PyObject *args)
     }
     wam_c(num_of_dp,size_of_vec,dp_arr,wam_array);
     ddg_c(num_of_dp, wam_array, output_array);
-    output_print(num_of_dp, output_array);
+    return toPy(num_of_dp, output_array);
 }
 
-static void wrap_gl(PyObject *self, PyObject *args)
+static PyObject* wrap_gl(PyObject *self, PyObject *args)
 {
     int i,j;
     int num_of_dp, size_of_vec;
@@ -125,7 +141,7 @@ static void wrap_gl(PyObject *self, PyObject *args)
     double val;
 
     if(!PyArg_ParseTuple(args, "iiO", &num_of_dp, &size_of_vec,&dp_arr_py)) {
-        return ; 
+        return NULL; 
     }
 
     double cords[size_of_vec];
@@ -149,22 +165,22 @@ static void wrap_gl(PyObject *self, PyObject *args)
     wam_c(num_of_dp,size_of_vec,dp_arr,wam_array);
     ddg_c(num_of_dp, wam_array, ddg_array);
     gl_c(num_of_dp,ddg_array,wam_array,output_array);
-    output_print(num_of_dp, output_array);
+    return toPy(num_of_dp, output_array);
 }
 
-static void wrap_jacobi(PyObject *self, PyObject *args){
+static PyObject* wrap_jacobi(PyObject *self, PyObject *args){
     
     int n,i,j;
-    PyObject *dp_arr_py;
+    PyObject *dp_arr_py, *res;
     PyObject *item1, *item2;
     double val;
-
+    res = NULL;
     if(!PyArg_ParseTuple(args, "iO", &n ,&dp_arr_py)) {
-        return ; 
+        return NULL; 
     }
     double row[n];
     double matrix[n][n];
-    double output_array [n][n];
+    double output_array [n+1][n];
 
     for(i=0; i<n; i++){
         item1 = PyList_GetItem(dp_arr_py,i);
@@ -179,7 +195,9 @@ static void wrap_jacobi(PyObject *self, PyObject *args){
     }
 
     jacobi_c(n, matrix, output_array);
-    output_print_j(n, output_array);
+    
+    res = toPyJ(n, output_array);
+    return res;
 }
 
 static PyObject* fit(PyObject *self, PyObject *args){
@@ -287,16 +305,35 @@ PyMODINIT_FUNC PyInit_myspkmeans(void){
     return m;
 }
 
-PyObject* toPy(int n, double input[n+1][n], PyObject* output){
+PyObject* toPyJ(int n, double input[n+1][n]){
     int i;
-    PyObject* row;
-    row = PyList_New(n);
+    PyObject *row, *output;
+    output = PyList_New(n+1);
     for(i=0; i<n+1; i++){
+        row = PyList_New(n);
+        create_vec(n, input[i], row);
+        
+        PyList_SetItem(output, i, row);
+    
+        }
+    return output;
+}
+
+PyObject* toPy(int n, double input[n][n]){
+    int i;
+    PyObject *row, *output;
+    output = PyList_New(n);
+    
+    for(i=0; i<n; i++){
+        row = PyList_New(n);
+
         create_vec(n, input[i], row);
         PyList_SetItem(output, i, row);
+
     }
     return output;
 }
+
 
 void create_vec(int n, double curr[n], PyObject* row){
     int i;
@@ -307,8 +344,3 @@ void create_vec(int n, double curr[n], PyObject* row){
     }
 }
 
-void output_print(int num_of_dp,double output_array[num_of_dp][num_of_dp]){
-    
-}
-void output_print_j(int num_of_dp,double output_array[num_of_dp+1][num_of_dp]){
-}
