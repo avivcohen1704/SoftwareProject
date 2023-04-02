@@ -1,4 +1,3 @@
-/*#include <Python.h>*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -6,7 +5,7 @@
 #include "spkmeans.h"
 
 
-void ll_to_arr(int num_of_dp, int size_of_vec, struct vector *dp_head, double res[num_of_dp][size_of_vec]); 
+void ll_to_arr_spk(int num_of_dp, int size_of_vec, struct vector *dp_head, double res[num_of_dp][size_of_vec]); 
 void output_print(int n ,double matrix[n][n]);
 void output_print_j(int n ,double matrix[n+1][n]);
 int input_valid(int argc, char **argv);
@@ -68,7 +67,7 @@ int main(int argc, char **argv){
 
     free(head_cord);
     
-    ll_to_arr(num_of_dp,size_of_vec,dp_head,input_array);
+    ll_to_arr_spk(num_of_dp,size_of_vec,dp_head,input_array);
 
 
     if (strcmp(argv[1], "wam") == 0){
@@ -159,7 +158,7 @@ int input_valid(int argc, char **argv){
 }
 
 
-void ll_to_arr(int num_of_dp, int size_of_vec, struct vector *dp_head, double res[num_of_dp][size_of_vec]){ 
+void ll_to_arr_spk(int num_of_dp, int size_of_vec, struct vector *dp_head, double res[num_of_dp][size_of_vec]){ 
     struct vector *curr_vec;
     struct cord *curr_cord;
     int i,j;
