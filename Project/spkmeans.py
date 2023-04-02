@@ -1,7 +1,9 @@
 import sys
+import math
 import pandas as pd
 import numpy as np
 import myspkmeans
+np.random.seed(0)
 
 
 def main():
@@ -14,67 +16,49 @@ def main():
     if func not in funcs:
         print("An Error Has Occurred")
         return
-
-    df = pd.read_csv(fileName, header=None, sort = True)
+    
+    df = pd.read_csv(fileName, header=None)
     n = len(df)
-    df = df.drop(df.columns[0],axis=1)
-    dp = df.to_numpy().tolist()
+    #df = df.drop(df.columns[0],axis=1)
+    dp = np.array(df.values.tolist())
     m = len(dp[0])
-
+    res = None
+    dp = dp.tolist()
     if func == "spk":
-        spk(k, dp)
-    elif func == "wam":
-        myspkmeans.wrap_wam(n,m,dp)
-    elif func == "ddg":
-        myspkmeans.wrap_ddg(n,m,dp)
-    elif func == "gl":
-        myspkmeans.wrap_gl(n,m,dp)
-    elif func == "jacobi":
-        myspkmeans.wrap_jacobi(n,dp)
-
-def spk(k, dp):
-    n = len(dp)
-    m = len(dp[0])
-    M = myspkmeans.warp_spk(n,m,dp)
-    V = M[0:n+1]
-    l = M[n+1]
-    V,l = new_sort(V,l)
-
-    if k == -1:
-        k = compute_gap(l)
-    
-    V = np.array(V)
-
-    final_dp = V[:,:k]
-
-    centroids, list_of_indx = create_centroids(final_dp, k)
-    
-    final_res = fit(k, 300, 0.00001, final_dp, centroids,len(final_dp[0]), len(final_dp))
-    
-    output_print_spk(final_res, list_of_indx, k)
-
-def new_sort(V,l):
-    Vnp = np.array(V)
-    lnp = np.array(l)
-    l_sort_indx = np.argsort(l)
-    V = Vnp[l_sort_indx]
-    l = lnp[l_sort_indx]
-    V = V.to_numpy().tolist()
-    l = lnp.to_numpy().tolist()
-    return V,l
-
-def compute_gap(l):
-    k=0
-    max = -1
-    for i in range(len(l)-1):
-        gap = abs(l[i] - l[i+1])
-        if gap > max:
-            max = gap
-            k = i
-    if max == -1:
-        print("we did a a misstake")
+        res = np.array(myspkmeans.wrap_spk(n,m,dp))
+        res = res.T
+        sort_key = lambda row: row[-1]
+        sorted_matrix = np.array(sorted(res, key=sort_key))
+        sorted_matrix = sorted_matrix.T
+        
+            
+        if k == -1:
+            max = -1
+            for i in range(math.floor(len(sorted_matrix[n])/2)):
+                if abs(sorted_matrix[n][i]-sorted_matrix[n][i+1]) > max:
+                    max = abs(sorted_matrix[n][i]-sorted_matrix[n][i+1])
+                    k = i+1
+        sorted_matrix = sorted_matrix[:-1]
+        dp = sorted_matrix[:,:k]
+        centroids, list_of_indx = create_centroids(dp, k)
+        
+        dp = dp.tolist()
+        centroids = np.array(centroids).tolist()
+        last_centroids = myspkmeans.fit(k, 300, 0, dp, centroids, len(dp[0]), len(dp))
+        output_print_spk(last_centroids, list_of_indx,len(dp[0]))
         return
-    return k
+    
+    elif func == "wam":
+        res = myspkmeans.wrap_wam(n,m,dp)
+    elif func == "ddg":
+        res = myspkmeans.wrap_ddg(n,m,dp)
+    elif func == "gl":
+        res = myspkmeans.wrap_gl(n,m,dp)
+    elif func == "jacobi":
+        res = myspkmeans.wrap_jacobi(n,dp)
+    
+    output_print(res)
+
 
 def create_centroids(dp,k):
     val_of_indx = [i for i in range(len(dp))]
@@ -121,11 +105,12 @@ def euclideanDistance(x1,x2):
     return d    
 
 def split_program_args():
-    if (len(sys.argv)<2) or (len(sys.argv)>3):
+    if (len(sys.argv)<2) or (len(sys.argv)>4):
+        print("error: too many")
         return 0,0,0
     argv_len = len(sys.argv)
     if argv_len == 4:
-        k = sys.argv[1]
+        k = int(sys.argv[1])
         func = sys.argv[2]
         fileName = sys.argv[3]
     else:
@@ -156,10 +141,30 @@ def output_print_spk(centroids, list_of_indx,size_of_vec):
             add = str(add)
             line += add.__str__()
         print(line)
-    print()
 
-if __name__ == "__man__":
+def output_print(matrix):
+    if abs(len(matrix) - len(matrix[0])) == 1:
+        vec = matrix[len(matrix) - 1]
+        matrix = np.array(matrix)
+        last_row = matrix[-1]
+        matrix = np.delete(matrix, -1, axis=0)
+        matrix = np.insert(matrix, 0, last_row, axis=0)
+
+        
+    for i in range(len(matrix)):
+        line = ''
+        for j in range(len(matrix[0])):
+            if j!= 0:
+                line += ","
+            add = matrix[i][j]
+            add = "{:.4f}".format(add)
+            add = str(add)
+            line += add.__str__()
+        print(line)
+    
+
+
+if __name__ == "__main__":
     main()
-
 
 
