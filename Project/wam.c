@@ -6,9 +6,9 @@
 
 
 
-double exp_euclidean_distance(int n, double x[n] , double y[n] );
+double exp_euclidean_distance(int n, double *x , double *y );
 
-void wam_c(int n, int m, double arr[n][m] , double output_array[n][n]){
+void wam_c(int n, int m, double **arr , double **output_array){
     int i,j;
     
     for (i=0; i<n; i++){
@@ -27,7 +27,7 @@ void wam_c(int n, int m, double arr[n][m] , double output_array[n][n]){
 }
 
 
-double exp_euclidean_distance(int n, double x[n] , double y[n] ){
+double exp_euclidean_distance(int n, double *x , double *y ){
     double res;
     int i;
     double sum;
