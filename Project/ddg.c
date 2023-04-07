@@ -5,9 +5,9 @@
 #include "spkmeans.h"
 
 
-double sum_row (int n, double arr[n]);
+double sum_row (int n, double *arr);
 
-void ddg_c(int n, double W[n][n], double D[n][n]){
+void ddg_c(int n, double **W, double **D){ /*W and D is n*n matrix */
     int i, j;
     for(i=0;i<n;i++){
         for(j=0;j<n;j++){
@@ -21,7 +21,7 @@ void ddg_c(int n, double W[n][n], double D[n][n]){
     }
 }
 
-double sum_row (int n, double arr[n] ){
+double sum_row (int n, double *arr ){
     int i;
     double ret;
     ret=0;
