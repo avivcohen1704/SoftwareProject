@@ -24,9 +24,9 @@ void create_matrix(int n, int m, double **matrix);
 
 void jacobi_c(int n, double **A , double **res){
     int iter,i,j;
-    double **V;
-    double **P;
-    double **new_A;
+    double **V = NULL;
+    double **P = NULL;
+    double **new_A = NULL;
     create_matrix(n,n,V); /*added this line*/
     create_matrix(n,n,P); /*added this line*/
     create_matrix(n,n,new_A); /*added this line*/
@@ -101,7 +101,7 @@ int sign(double a){
 
 void rotation(int n,double s, double c, int pivot [2], double **A , double **new_A){
     int r,i,j,k,l;
-    double **res;
+    double **res = NULL;
     i = pivot[0];
     j = pivot[1];
     create_matrix(n,n,res); /*added this line*/
@@ -150,9 +150,9 @@ void ID(int n, double **res){
 }
 
 void dot(int n, double **a , double **b){
-    double **c;
+    double **c = NULL;
     int i,j;
-    double *col;
+    double *col = NULL;
     col = (double*)calloc(n, sizeof(double));
     create_matrix(n,n,c); /*added this line*/
 
