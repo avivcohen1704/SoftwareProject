@@ -9,23 +9,28 @@
 double eps = 0.00001;
 int max_iter=100;
 
-void max_off_diag(int n, double A[n][n], int pivot[2]);
+void max_off_diag(int n, double **A, int pivot[2]);/*A is n*n */
 int sign(double a);
-void rotation(int n,double s,double c, int pivot [2], double A[n][n], double new_A[n][n]);
-void ID(int n, double res[n][n]);
-void dot(int n, double a [n][n] , double b[n][n]);
-double sum_dot(int n, double row[n], double col[n]);
-void calc_col(int j, int n, double matrix[n][n], double col[n] );
-int check_convergeJ(int n, double A[n][n] , double new_A[n][n] );
-void add_eigenV(int n, double A [n][n] , double V[n][n], double res[n+1][n] );
+void rotation(int n,double s,double c, int pivot [2], double **A, double **new_A); /* A and new_A is n*n */
+void ID(int n, double **res); /*res is n*n*/
+void dot(int n, double **a , double **b);/*n*n matrix */
+double sum_dot(int n, double *row, double *col); /* arrays of size n*/
+void calc_col(int j, int n, double **matrix, double *col ); /*matrix size n*n, col is array size n*/
+int check_convergeJ(int n, double **A , double **new_A); /* A and new_A is n*n */
+void add_eigenV(int n, double **A , double **V, double **res ); /* A and V is n*n res is n+1*n */
+void create_matrix(int n, int m, double **matrix);
 
 
 
-void jacobi_c(int n, double A[n][n] , double res[n+1][n]){
+void jacobi_c(int n, double **A , double **res){
     int iter,i,j;
-    double V[n][n];
-    double P[n][n];
-    double new_A[n][n];
+    double **V;
+    double **P;
+    double **new_A;
+    create_matrix(n,n,V); /*added this line*/
+    create_matrix(n,n,P); /*added this line*/
+    create_matrix(n,n,new_A); /*added this line*/
+    
     
     ID(n,V);
     
@@ -66,7 +71,7 @@ void jacobi_c(int n, double A[n][n] , double res[n+1][n]){
 }
 
 
-void max_off_diag(int n, double A[n][n], int pivot[2]){
+void max_off_diag(int n, double **A, int pivot[2]){
     int i,j;
     double max;
     max = -1;
@@ -94,12 +99,12 @@ int sign(double a){
     }
 }
 
-void rotation(int n,double s, double c, int pivot [2], double A[n][n] , double new_A[n][n]){
+void rotation(int n,double s, double c, int pivot [2], double **A , double **new_A){
     int r,i,j,k,l;
+    double **res;
     i = pivot[0];
     j = pivot[1];
-    double res[n][n];
-    
+    create_matrix(n,n,res); /*added this line*/
 
     for (k=0;k<n;k++){
         for (l=0;l<n;l++){
@@ -132,7 +137,7 @@ void rotation(int n,double s, double c, int pivot [2], double A[n][n] , double n
     }
 }
 
-void ID(int n, double res[n][n]){
+void ID(int n, double **res){
     int i,j;
     for (i=0; i<n;i++){
         for(j=0;j<n;j++){
@@ -144,10 +149,13 @@ void ID(int n, double res[n][n]){
     }
 }
 
-void dot(int n, double a[n][n] , double b[n][n]){
-    double c[n][n];
+void dot(int n, double **a , double **b){
+    double **c;
     int i,j;
-    double col[n];
+    double *col;
+    col = (double*)calloc(n, sizeof(double));
+    create_matrix(n,n,c); /*added this line*/
+
     for(i=0;i<n;i++){
         for(j=0;j<n;j++){
             
@@ -164,7 +172,7 @@ void dot(int n, double a[n][n] , double b[n][n]){
     }
 }
 
-double sum_dot(int n, double row[n], double col[n]){
+double sum_dot(int n, double *row, double *col){
     double sum;
     int i;
     sum =0;
@@ -175,14 +183,14 @@ double sum_dot(int n, double row[n], double col[n]){
     
 }
 
-void calc_col(int j, int n, double matrix[n][n],double col[n] ){
+void calc_col(int j, int n, double **matrix, double *col){
     int i;
     for (i=0; i<n; i++){
         col[i] = matrix[i][j];
     }
 }
 
-int check_convergeJ(int n, double A[n][n] , double new_A[n][n] ){
+int check_convergeJ(int n, double **A , double **new_A){
     int i,j;
     double d1,d2;
     d1 = 0;
@@ -207,7 +215,7 @@ int check_convergeJ(int n, double A[n][n] , double new_A[n][n] ){
     return 0;
 }
 
-void add_eigenV(int n, double A[n][n] , double V[n][n], double res[n+1][n]){
+void add_eigenV(int n, double **A , double **V, double **res){ /*res is n+1*n  */
     
     int i,j;
     for (i=0;i<n;i++){
@@ -217,4 +225,13 @@ void add_eigenV(int n, double A[n][n] , double V[n][n], double res[n+1][n]){
     }
     for (i=0;i<n;i++){
         res[n][i] = A[i][i];}
+}
+
+
+void create_matrix(int n, int m, double **matrix){
+    int i;
+    matrix = (double**)calloc(n, sizeof(double*));
+    for(i=0;i<n;i++){
+        matrix[i] = (double*)calloc(m, sizeof(double));
+    }
 }
