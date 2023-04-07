@@ -19,7 +19,6 @@ void calc_col(int j, int n, double **matrix, double *col ); /*matrix size n*n, c
 int check_convergeJ(int n, double **A , double **new_A); /* A and new_A is n*n */
 void add_eigenV(int n, double **A , double **V, double **res ); /* A and V is n*n res is n+1*n */
 void create_matrix(int n, int m, double ***matrix_ptr);
-void print_mat(double **matrix , int n);
 
 
 
@@ -253,12 +252,3 @@ void create_matrix(int n, int m, double ***matrix_ptr){
     *matrix_ptr = matrix;
 }
 
-void print_mat(double **matrix , int n){
-    int i,j;
-    for(i=0; i<n+1; i++){
-        printf("\n");
-        for(j=0; j<n; j++){
-            printf("%f ", matrix[i][j]);}
-    }
-    printf("\n\n\n");
-}
