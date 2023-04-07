@@ -40,6 +40,7 @@ def main():
                     k = i+1
         sorted_matrix = sorted_matrix[:-1]
         dp = sorted_matrix[:,:k]
+        
         centroids, list_of_indx = create_centroids(dp, k)
         
         dp = dp.tolist()
@@ -56,6 +57,7 @@ def main():
         res = myspkmeans.wrap_gl(n,m,dp)
     elif func == "jacobi":
         res = myspkmeans.wrap_jacobi(n,dp)
+        
     
     output_print(res)
 
@@ -93,9 +95,10 @@ def calc_probability (dp,centroids):
     return probability_arr
 
 def first_choose(dp, list_of_indx):
-    a = np.random.choice(range(1,len(dp)))
-    list_of_indx.append(a-1)
-    return dp[a-1]
+
+    a = np.random.choice(range(0,len(dp)))
+    list_of_indx.append(a)
+    return dp[a]
 
 def euclideanDistance(x1,x2):
     d = 0
@@ -106,7 +109,6 @@ def euclideanDistance(x1,x2):
 
 def split_program_args():
     if (len(sys.argv)<2) or (len(sys.argv)>4):
-        print("error: too many")
         return 0,0,0
     argv_len = len(sys.argv)
     if argv_len == 4:
