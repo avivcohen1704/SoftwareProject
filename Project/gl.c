@@ -6,7 +6,7 @@
 
 
 
-void gl_c(int n, double D[n][n], double W[n][n], double L[n][n]) {
+void gl_c(int n, double **D, double **W, double **L) { /*all the matrix here are n*n */
     int i,j;
     for(i=0;i<n;i++){
         for(j=0;j<n;j++){
