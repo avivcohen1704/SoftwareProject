@@ -5,21 +5,27 @@
 #include "spkmeans.h"
 
 
-void ll_to_arr_spk(int num_of_dp, int size_of_vec, struct vector *dp_head, double res[num_of_dp][size_of_vec]); 
-void output_print(int n ,double matrix[n][n]);
-void output_print_j(int n ,double matrix[n+1][n]);
+void ll_to_arr_spk(int num_of_dp, int size_of_vec, struct vector *dp_head, double **res);/*res dim is num_of_dp*size_of_vec*/ 
+void output_print(int n ,double **matrix);/*matrix n*n*/
+void output_print_j(int n ,double **matrix);/*matrix n+1*n*/
 int input_valid(int argc, char **argv);
+void create_matrix_s(int n, int m, double **matrix);
+
+
 
 int main(int argc, char **argv){
-    if(input_valid(argc,argv)){
-        printf("An Error Has Occurred");
-        return 1;
-    }
     struct vector *dp_head, *curr_vec;
     struct cord *head_cord, *curr_cord;
     int num_of_dp, size_of_vec;
     double n;
     char c;
+    double **input_array = NULL;
+
+    if(input_valid(argc,argv)){
+        printf("An Error Has Occurred");
+        return 1;
+    }
+    
 
     size_of_vec = 0;
     num_of_dp = 0;
@@ -62,8 +68,10 @@ int main(int argc, char **argv){
 
 
     }
+    
+    
     size_of_vec++;
-    double input_array [num_of_dp][size_of_vec];
+    create_matrix_s(num_of_dp,size_of_vec,input_array); /*added this line*/
 
     free(head_cord);
     
@@ -71,24 +79,30 @@ int main(int argc, char **argv){
 
 
     if (strcmp(argv[1], "wam") == 0){
-        double output_array[num_of_dp][num_of_dp];
+        double **output_array = NULL;
+        create_matrix_s(num_of_dp,num_of_dp,output_array); /*added this line*/
         wam_c(num_of_dp, size_of_vec, input_array, output_array);
         output_print(num_of_dp, output_array);
 
     }
 
     if (strcmp(argv[1], "ddg") == 0){
-        double wam_output[num_of_dp][num_of_dp];
-        double output_array[num_of_dp][num_of_dp];
+        double **wam_output = NULL;
+        double **output_array = NULL;
+        create_matrix_s(num_of_dp,num_of_dp,wam_output); /*added this line*/
+        create_matrix_s(num_of_dp,num_of_dp,output_array); /*added this line*/
         wam_c(num_of_dp,size_of_vec,input_array, wam_output);
         ddg_c(num_of_dp, wam_output, output_array);
         output_print(num_of_dp, output_array);
     }
     
     if (strcmp(argv[1], "gl") == 0){
-        double wam_output[num_of_dp][num_of_dp];
-        double ddg_output[num_of_dp][num_of_dp];
-        double output_array[num_of_dp][num_of_dp];
+        double **wam_output = NULL;
+        double **ddg_output = NULL;
+        double **output_array = NULL;
+        create_matrix_s(num_of_dp,num_of_dp,wam_output); /*added this line*/
+        create_matrix_s(num_of_dp,num_of_dp,ddg_output); /*added this line*/
+        create_matrix_s(num_of_dp,num_of_dp,output_array); /*added this line*/
         wam_c(num_of_dp, size_of_vec,input_array, wam_output);
         ddg_c(num_of_dp, wam_output, ddg_output);
         gl_c(num_of_dp, ddg_output,wam_output,output_array);
@@ -96,16 +110,16 @@ int main(int argc, char **argv){
     }
 
     if (strcmp(argv[1], "jacobi") == 0){
-        double output_array[num_of_dp+1][num_of_dp];
+        double **output_array = NULL;
+        create_matrix_s(num_of_dp+1,num_of_dp,output_array); /*added this line, here the size is n_o_d+1*n_o_d*/
         jacobi_c(num_of_dp, input_array, output_array);
         output_print_j(num_of_dp, output_array);
 
     }
-
-
+    return 1;
 }
 
-void output_print(int n ,double matrix[n][n]){
+void output_print(int n ,double **matrix){
     int i,j;
     for (i=0;i<n;i++){
         for (j=0;j<n;j++){
@@ -117,7 +131,7 @@ void output_print(int n ,double matrix[n][n]){
 }
 
 
-void output_print_j(int n ,double matrix[n+1][n]){
+void output_print_j(int n ,double **matrix){
     /* we might change this to matrix = matrix.transpose */
     int i,j;
     for (j=0;j<n;j++){
@@ -158,7 +172,7 @@ int input_valid(int argc, char **argv){
 }
 
 
-void ll_to_arr_spk(int num_of_dp, int size_of_vec, struct vector *dp_head, double res[num_of_dp][size_of_vec]){ 
+void ll_to_arr_spk(int num_of_dp, int size_of_vec, struct vector *dp_head, double **res){ 
     struct vector *curr_vec;
     struct cord *curr_cord;
     int i,j;
@@ -171,5 +185,13 @@ void ll_to_arr_spk(int num_of_dp, int size_of_vec, struct vector *dp_head, doubl
             curr_cord = curr_cord->next;
         }
         curr_vec = curr_vec->next;
+    }
+}
+
+void create_matrix_s(int n, int m, double **matrix){
+    int i;
+    matrix = (double**)calloc(n, sizeof(double*));
+    for(i=0;i<n;i++){
+        matrix[i] = (double*)calloc(m, sizeof(double));
     }
 }
