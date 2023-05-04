@@ -1,32 +1,7 @@
-# Software Project
-A software Project as part of Software Project course at Tel Aviv University
-
-## Homework 1
-Two implementation of kmeans algorithm one in Python and the second in C
-### Python implementation
-Implemented using arrays
-### C implementation
-Implemented using Linked Lists
-
-[Assignment 1.pdf](https://github.com/avivcohen1704/SoftwareProject/files/10373484/Assignment.1.pdf)
-
-grade - 100
-
-## Homework 2
-An Implementation of kmeans algorithm using kmeans++'s pick of first centroids
-The kmeans++ algorithm is implemented in Python 
-The kmeans algorithm is implemented in C
-Both are connected via Python to C API
-
-bonus file - 
-displays the elbow of the graph of the inertia value agianst the number of centroids using the data from iris database using sklearn's kmeans and kmeans++
-
-[Assignment 2.pdf](https://github.com/avivcohen1704/SoftwareProject/files/10373490/Assignment.2.pdf)
-
-## contributors
-Omri Ravona
-GitHub - @omri0702
-
-Aviv Cohen
-GitHub - @avivcohen1704
-
+# software project course
+A course at Tel Aviv University part of Computer Science Bsc.
+This project is build of 3 different part
+1. Homework 1 - an implementation of the Kmeans algorithem in both Python and C
+2. Homework 2 - an implementation of a Python library that contains Kmeans++ algorithem in python and C using a C Python API for faster running time.
+3. Project - an implementation of a library that contains the following Unormalized Spectral Clustering Algorithm and the functions used to implement it.
+the grade for each part of 100
