@@ -1,8 +1,26 @@
-# software project course
-A course at Tel Aviv University part of Computer Science Bsc.
-This project is build of 3 different part
-1. Homework 1 - an implementation of the Kmeans algorithem in both Python and C
-2. Homework 2 - an implementation of a Python library that contains Kmeans++ algorithem in python and C using a C Python API for faster running time.
-3. Project - an implementation of a library that contains the following Unormalized Spectral Clustering Algorithm and the functions used to implement it.
+<h1 align="center">
+  <br>
+  Spectral Clustering API
+  <br>
+</h1>
 
-the grade for each part of 100
+An implementation of a Spectral Clustering algorithm using C to Python API in order to gain efficiency of computations 
+
+<h1 align="left">
+Features
+
+### waighted adjacency matrix
+for n given data points in d dimentions, it will calculate and return the waighted adjacency matrix by the exponential norm
+
+### Diagonal Degree Matrix
+for a given squered matrix size n*n - W, it will calculate and return a diagonal marix D, the (i,i)'th entry in D will be equal to 
+sum(j=1,...,n) + M(i,j) and else D will be equal to zero
+
+### Graph Laplacian
+given two matrices D, W, it will calculate and return matrix L = D - W
+
+### eigenvectors and eigenvalues
+for a given matrix M, it will calculate the eigenvectors and eigenvalues and return them by running Jacobi's algorithm
+
+### SPKmeans
+for n given data points in d dimentions, it will calculate an unormalized spectral clustering algorithm by running the waighted adjacency matrix, Diagonal Degree Matrix, Graph Laplacian, eigenvectors and eigenvalues, and run kmeans++ on k eigenvectors that matches k biggest eigenvalues, as columns and returns the converged centroids.
